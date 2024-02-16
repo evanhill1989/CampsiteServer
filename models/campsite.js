@@ -9,15 +9,18 @@ const commentSchema = new Schema(
       type: Number,
       min: 1,
       max: 5,
-      required: true,
+      required: false,
     },
     text: {
       type: String,
-      required: true,
+      required: false,
     },
+    // The user gives us the id of the author
+    // The user is just an object though, not a string
+    // How do we pull the name from the user object?
     author: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
