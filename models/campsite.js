@@ -9,11 +9,11 @@ const commentSchema = new Schema(
       type: Number,
       min: 1,
       max: 5,
-      required: false,
+      required: true,
     },
     text: {
       type: String,
-      required: false,
+      required: true,
     },
     // The user gives us the id of the author
     // The user is just an object though, not a string

@@ -1,8 +1,9 @@
 //original 3 lines
+//main auth library
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const User = require("./models/user");
-
+//JSON Web Token auth strateggy
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
 const jwt = require("jsonwebtoken"); // used to create, sign, and verify tokens
@@ -38,3 +39,26 @@ exports.jwtPassport = passport.use(
 );
 
 exports.verifyUser = passport.authenticate("jwt", { session: false });
+
+// Add this function to your existing authenticate.js file
+
+exports.verifyAdmin = (req, res, next) => {
+  // First, verify the user is authenticated
+  if (req.isAuthenticated()) {
+    // User is authenticated, now check if they are an admin
+    if (req.user.admin) {
+      // User is an admin, proceed to the next middleware or route handler
+      return next();
+    } else {
+      // User is not an admin, return an error
+      var err = new Error("You are not authorized to perform this operation!");
+      err.status = 403; // Forbidden
+      return next(err);
+    }
+  } else {
+    // User is not authenticated, return an error
+    var err = new Error("You are not authenticated!");
+    err.status = 401; // Unauthorized
+    return next(err);
+  }
+};

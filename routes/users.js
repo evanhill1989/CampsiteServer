@@ -1,17 +1,29 @@
 const express = require("express");
-const User = require("../models/user");
+const User = require("../models/user"); // Assuming this is the correct path to your User model
 
 const passport = require("passport");
-const router = express.Router();
+const usersRouter = express.Router(); // Note: it should be express.Router(), not express.router()
 
 const authenticate = require("../authenticate");
 
 /* GET users listing. */
-router.get("/", function (req, res, next) {
-  res.send("respond with a resource");
-});
-
-router.post("/signup", (req, res) => {
+usersRouter.get(
+  "/",
+  authenticate.verifyUser,
+  authenticate.verifyAdmin,
+  (req, res, next) => {
+    User.find({}, (err, users) => {
+      if (err) {
+        return next(err);
+      } else {
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "application/json");
+        res.json(users); // Send all user documents as a JSON response
+      }
+    });
+  }
+);
+usersRouter.post("/signup", (req, res) => {
   User.register(
     new User({ username: req.body.username }),
     req.body.password,
@@ -45,7 +57,7 @@ router.post("/signup", (req, res) => {
   );
 });
 
-router.post("/login", passport.authenticate("local"), (req, res) => {
+usersRouter.post("/login", passport.authenticate("local"), (req, res) => {
   const token = authenticate.getToken({ _id: req.user._id });
   res.statusCode = 200;
   res.setHeader("Content-Type", "application/json");
@@ -58,7 +70,7 @@ router.post("/login", passport.authenticate("local"), (req, res) => {
 
 // chat route
 
-router.get("/logout", (req, res, next) => {
+usersRouter.get("/logout", (req, res, next) => {
   if (req.session) {
     req.session.destroy();
     res.clearCookie("session-id");
@@ -70,4 +82,4 @@ router.get("/logout", (req, res, next) => {
   }
 });
 
-module.exports = router;
+module.exports = usersRouter;
